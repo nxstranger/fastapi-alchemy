@@ -1,0 +1,8 @@
+first migration:
+alembic revision --autogenerate -m 'initial'
+
+second migration: (didn't check)
+alembic revision --autogenerate -m "Add a column"
+
+migrate:
+alembic upgrade head
