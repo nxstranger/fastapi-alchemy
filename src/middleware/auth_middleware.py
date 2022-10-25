@@ -1,35 +1,45 @@
-from fastapi import Header, HTTPException, status, Depends
+from fastapi import HTTPException, status, Depends
 from pydantic import BaseModel
 from fastapi.security import OAuth2PasswordBearer
-from jose import JWTError, jwt
-from src.settings import settings
+from jose import jwt
+from ..settings import settings
+from sqlalchemy.orm import load_only
+from ..db import User, current_session
+from ..db.user import RoleEnum
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='api/v1/auth/login')
 
 
 class UserJWT(BaseModel):
-    user_id: int
-    role_name: str
+    id: int
+    is_active: bool
+    role_name: RoleEnum
+
+    class Config:
+        use_enum_values = True
 
 
-async def get_token(token: str = Depends(oauth2_scheme)):
+async def jwt_user(token: str = Depends(oauth2_scheme)):
     try:
-        # print('token: {}'.format(token))
         user = jwt.decode(token, key=settings.get('JWT_KEY'), algorithms=[settings.get('JWT_ALGORITHM')])
-        jwt_user = UserJWT(**user)
-        return jwt_user
+        user_id = user.get('user_id')
+        if user:
+            db_user = current_session.query(User)\
+                .options(load_only(User.id, User.is_active, User.role_name))\
+                .filter(User.id == user_id).first()
+            return db_user
     except Exception as exc:
         print('ERROR: {}'.format(exc))
         raise HTTPException(status_code=401, detail='Invalid token')
 
 
-async def is_auth(user: UserJWT = Depends(get_token)):
+async def is_auth(user: UserJWT = Depends(jwt_user)):
     if user:
         return True
     return False
 
 
-async def get_current_user(user: UserJWT = Depends(get_token)):
+async def get_current_user(user: UserJWT = Depends(jwt_user)):
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -40,7 +50,7 @@ async def get_current_user(user: UserJWT = Depends(get_token)):
 
 
 async def is_user_admin(user: UserJWT = Depends(get_current_user)):
-    if user.role_name == 'admin':
+    if user == 'admin':
         return True
     return False
 

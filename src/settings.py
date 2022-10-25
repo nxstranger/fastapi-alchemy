@@ -18,5 +18,7 @@ class Settings(BaseSettings):
     JWT_ALGORITHM: str = Field(env='JWT_ALGORITHM', default='HS256')
     ACCESS_TOKEN_LIFETIME_MINUTES: str = Field(env='ACCESS_TOKEN_LIFETIME_MINUTES', default=480)
 
+    ADMIN_ACTIVATION_CODE: str = Field(env='ADMIN_ACTIVATION_CODE')
+
 
 settings = Settings().dict()

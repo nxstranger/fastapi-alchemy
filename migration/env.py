@@ -18,10 +18,8 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-from src.users.models import User
-from src.chat.models import Message
 
-from src.db import Base     # noqa E402
+from src.db.base import Base   # noqa E402
 
 target_metadata = Base.metadata
 

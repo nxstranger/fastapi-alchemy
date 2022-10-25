@@ -5,7 +5,7 @@ from sqlalchemy import (
     Text,
 )
 from sqlalchemy.orm import relationship
-from src.db import Base
+from .base import Base
 # from ..users.models import User
 
 

@@ -6,8 +6,8 @@ from sqlalchemy.orm.session import Session
 from sqlalchemy.exc import IntegrityError
 from src.settings import settings
 
-from ..users.models import User
-from ..db import engine
+from src.db.user import User
+from ..db import current_session
 from ..utils.crypto import validate_password
 
 router = APIRouter(
@@ -31,32 +31,28 @@ class AuthCredentials(BaseModel):
 
 @router.post(path='/login')
 async def login(credentials: OAuth2PasswordRequestForm = Depends()):
-    with Session(engine) as session:
-        user = session.query(User)\
-            .filter(User.username == credentials.username).first()
-        print('user: {}'.format(user))
-        if user and validate_password(credentials.password, user.password):
-            print('P:{}\nH:{}'.format(credentials.password, user.password))
-            token = jwt.encode(
-                {'user_id': user.id, 'role_name': user.role_name},
-                key=settings.get('JWT_KEY'),
-                algorithm=settings.get('JWT_ALGORITHM')
-            )
-            return {"access_token": token, "token_type": "bearer"}
-        raise HTTPException(status_code=401, detail="Unauthorized")
+    user = current_session.query(User)\
+        .filter(User.username == credentials.username).first()
+    if user and validate_password(credentials.password, user.password):
+        token = jwt.encode(
+            {'user_id': user.id},
+            key=settings.get('JWT_KEY'),
+            algorithm=settings.get('JWT_ALGORITHM')
+        )
+        return {"access_token": token, "token_type": "bearer"}
+    raise HTTPException(status_code=401, detail="Unauthorized")
 
 
 @router.post(path='/register')
 async def register(credentials: AuthCredentials):
     new_user = User(**credentials.dict())
-    with Session(engine) as session:
-        session.add(new_user)
-        try:
-            session.commit()
-        except IntegrityError:
-            raise HTTPException(status_code=400, detail='username: {} already exists'.format(new_user.username))
-        session.refresh(new_user)
-        print(new_user)
-        if new_user.id:
-            return {"user_id": new_user.id}
+    # with Session(engine) as session:
+    current_session.add(new_user)
+    try:
+        current_session.commit()
+    except IntegrityError:
+        raise HTTPException(status_code=400, detail='username: {} already exists'.format(new_user.username))
+    current_session.refresh(new_user)
+    if new_user.id:
+        return {"user_id": new_user.id}
     raise HTTPException(status_code=400, detail='SMTH went wrong')

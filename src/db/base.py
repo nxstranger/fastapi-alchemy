@@ -1,6 +1,6 @@
 import os
 from sqlalchemy import create_engine, MetaData
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.ext.declarative import as_declarative
 
 DB_PASS = os.environ.get('DB_PASS', 'postgres')
@@ -20,6 +20,9 @@ engine = create_engine(
     isolation_level="REPEATABLE READ",
     echo=True,
 )
+Session = sessionmaker()
+current_session = scoped_session(Session)
+
 
 metadata = MetaData(bind=engine)
 
