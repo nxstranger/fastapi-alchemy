@@ -1,15 +1,18 @@
-from fastapi import APIRouter, HTTPException
+from jose import jwt
+from fastapi import APIRouter, HTTPException, Depends
+from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel, validator
-from ..users.models import User
-from ..db import engine
 from sqlalchemy.orm.session import Session
 from sqlalchemy.exc import IntegrityError
-from ..utils.crypto import validate_password
 from src.settings import settings
-from jose import jwt
+
+from ..users.models import User
+from ..db import engine
+from ..utils.crypto import validate_password
 
 router = APIRouter(
-    prefix='/auth'
+    prefix='/auth',
+    tags=["auth"],
 )
 
 
@@ -27,24 +30,25 @@ class AuthCredentials(BaseModel):
 
 
 @router.post(path='/login')
-async def login(credentials: AuthCredentials):
+async def login(credentials: OAuth2PasswordRequestForm = Depends()):
     with Session(engine) as session:
         user = session.query(User)\
             .filter(User.username == credentials.username).first()
         print('user: {}'.format(user))
         if user and validate_password(credentials.password, user.password):
             print('P:{}\nH:{}'.format(credentials.password, user.password))
-            token = jwt.encode({'user_id': user.id}, key=settings.get('JWT_KEY'), algorithm=settings.get('JWT_ALGORITHM'))
-            return {'token': token}
+            token = jwt.encode(
+                {'user_id': user.id, 'role_name': user.role_name},
+                key=settings.get('JWT_KEY'),
+                algorithm=settings.get('JWT_ALGORITHM')
+            )
+            return {"access_token": token, "token_type": "bearer"}
         raise HTTPException(status_code=401, detail="Unauthorized")
-
-    # return credentials.dict()
 
 
 @router.post(path='/register')
 async def register(credentials: AuthCredentials):
     new_user = User(**credentials.dict())
-    # username = credentials.username
     with Session(engine) as session:
         session.add(new_user)
         try:
@@ -54,5 +58,5 @@ async def register(credentials: AuthCredentials):
         session.refresh(new_user)
         print(new_user)
         if new_user.id:
-            return new_user
+            return {"user_id": new_user.id}
     raise HTTPException(status_code=400, detail='SMTH went wrong')

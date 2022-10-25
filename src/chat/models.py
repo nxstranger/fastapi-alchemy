@@ -17,5 +17,15 @@ class Message(Base):
     receiver_id = Column(Integer, ForeignKey("chat_user.id"), nullable=False)
     text = Column(Text, nullable=False)
 
-    sender = relationship("User", back_populates="sent")
-    receiver = relationship("User", back_populates="got")
+    sender = relationship(
+        "User",
+        # back_populates="sent",
+        foreign_keys=[sender_id],
+        uselist=False,
+    )
+    receiver = relationship(
+        "User",
+        # back_populates="got",
+        foreign_keys=[receiver_id],
+        uselist=False,
+    )

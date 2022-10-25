@@ -1,7 +1,7 @@
 import os
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import declarative_base
-from sqlalchemy.ext.declarative import DeferredReflection
+from sqlalchemy.ext.declarative import as_declarative
 
 DB_PASS = os.environ.get('DB_PASS', 'postgres')
 DB_USER = os.environ.get('DB_USER', 'postgres')
@@ -21,10 +21,10 @@ engine = create_engine(
     echo=True,
 )
 
-meta = MetaData(engine)
-Base = declarative_base(metadata=meta)
+metadata = MetaData(bind=engine)
 
 
-class Reflected(DeferredReflection):
-    __abstract__ = True
+@as_declarative(metadata=metadata)
+class Base:
+    pass
 
