@@ -2,16 +2,16 @@ from fastapi import Depends
 from fastapi.routing import APIRouter, HTTPException
 from pydantic import BaseModel, ValidationError
 
-from ..settings import settings
-from ..middleware.auth_middleware import get_current_user
-from ..db.user import User, RoleEnum
-from ..db import current_session
-from ..middleware.auth_middleware import UserJWT
+from src.settings import settings
+from src.middleware.auth_middleware import get_current_user
+from src.db.user import User, RoleEnum
+from src.db import current_session
+from src.middleware.auth_middleware import UserJWT
 
 
 router = APIRouter(
-    prefix='/users',
-    tags=['users'],
+    prefix='/user',
+    tags=['user'],
     responses={404: {'description': 'Not found'}},
 )
 

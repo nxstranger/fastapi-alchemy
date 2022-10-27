@@ -6,7 +6,6 @@ from sqlalchemy import (
     Boolean,
     Enum
 )
-# from sqlalchemy.dialects.postgresql import ENUM as psql_enum
 import enum
 from sqlalchemy.orm import deferred, relationship
 from sqlalchemy.sql import expression

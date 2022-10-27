@@ -2,13 +2,12 @@ from jose import jwt
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel, validator
-from sqlalchemy.orm.session import Session
 from sqlalchemy.exc import IntegrityError
-from src.settings import settings
 
-from src.db.user import User
-from ..db import current_session
-from ..utils.crypto import validate_password
+from ...settings import settings
+from ...db.user import User
+from ...db import current_session
+from ...utils.crypto import validate_password
 
 router = APIRouter(
     prefix='/auth',
