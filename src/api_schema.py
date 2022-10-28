@@ -3,8 +3,6 @@ from fastapi import FastAPI
 
 
 def custom_openapi(app: FastAPI):
-    # if app.openapi_schema:
-    #     return app.openapi_schema
     def get_schema():
         openapi_schema = get_openapi(
             title="Schema",

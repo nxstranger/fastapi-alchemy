@@ -15,3 +15,29 @@ services:
 #    image: redis:7
 #    ports:
 #      - '6379:6379'
+
+#  ch_server:
+#    container_name: fastapi-ch-server
+#    image: yandex/clickhouse-server
+#    ports:
+#      - "8123:8123"
+#      - "9000:9000"
+#    volumes:
+#      - ./clickhouse:/var/lib/clickhouse
+
+#  ch_client:
+#    image: yandex/clickhouse-client
+#    entrypoint:
+#      - /bin/sleep
+#    command:
+#      - infinity
+
+  mongodb_container:
+    image: mongo:latest
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root_password
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./mongo_data:/data/db

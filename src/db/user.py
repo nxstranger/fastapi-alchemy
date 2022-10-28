@@ -4,10 +4,9 @@ from sqlalchemy import (
     String,
     Text,
     Boolean,
-    Enum
 )
 import enum
-from sqlalchemy.orm import deferred, relationship
+from sqlalchemy.orm import deferred
 from sqlalchemy.sql import expression
 from src.utils.crypto import hash_password
 from .base import Base
@@ -16,9 +15,6 @@ from .base import Base
 class RoleEnum(enum.Enum):
     ADMIN = 'ADMIN'
     USER = 'USER'
-
-    # class Meta:
-    #     create_type = True
 
     @classmethod
     def list(cls):
@@ -35,9 +31,6 @@ class User(Base):
     role_name = Column(String(10),
                        nullable=False,
                        server_default=RoleEnum.USER.value)
-
-    # sent = relationship('Message')
-    # got = relationship('Message')
 
     def __init__(self, username, password, role_name=RoleEnum.USER.value):
         super().__init__()

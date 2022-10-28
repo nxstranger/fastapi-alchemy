@@ -2,8 +2,8 @@ from fastapi import HTTPException, status, Depends
 from pydantic import BaseModel
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
-from ..settings import settings
 from sqlalchemy.orm import load_only
+from ..settings import settings
 from ..db import User, current_session
 from ..db.user import RoleEnum
 
@@ -21,7 +21,7 @@ class UserJWT(BaseModel):
 
 async def jwt_user(token: str = Depends(oauth2_scheme)):
     try:
-        user = jwt.decode(token, key=settings.get('JWT_KEY'), algorithms=[settings.get('JWT_ALGORITHM')])
+        user = jwt.decode(token, key=settings.JWT_KEY, algorithms=[settings.JWT_ALGORITHM])
         user_id = user.get('user_id')
         if user:
             db_user = current_session.query(User)\

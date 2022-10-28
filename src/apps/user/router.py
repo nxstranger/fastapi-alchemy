@@ -1,6 +1,6 @@
 from fastapi import Depends
 from fastapi.routing import APIRouter, HTTPException
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel
 
 from src.settings import settings
 from src.middleware.auth_middleware import get_current_user
@@ -38,8 +38,8 @@ async def make_me_admin(payload: MakeMeAdminPayload,
         raise HTTPException(status_code=400, detail='Already admin')
 
     if (
-        settings.get('ADMIN_ACTIVATION_CODE') and
-        payload.activation_code == settings.get('ADMIN_ACTIVATION_CODE') and
+        settings.ADMIN_ACTIVATION_CODE and
+        payload.activation_code == settings.ADMIN_ACTIVATION_CODE and
         user.role_name != RoleEnum.ADMIN.value
     ):
         user = current_session.query(User)\
@@ -48,6 +48,4 @@ async def make_me_admin(payload: MakeMeAdminPayload,
         current_session.commit()
         return {user}
     raise HTTPException(status_code=400, detail="Some error")
-
-# @router.post("/", dependencies=[Depends(is_auth)])
 

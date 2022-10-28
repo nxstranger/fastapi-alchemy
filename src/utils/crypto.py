@@ -1,5 +1,4 @@
 import bcrypt
-from fastapi.exceptions import ValidationError
 
 
 def hash_password(password: str, rounds=12):

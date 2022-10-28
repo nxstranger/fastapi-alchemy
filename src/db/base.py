@@ -2,12 +2,14 @@ import os
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.ext.declarative import as_declarative
+from ..settings import settings
 
-DB_PASS = os.environ.get('DB_PASS', 'postgres')
-DB_USER = os.environ.get('DB_USER', 'postgres')
-DB_NAME = os.environ.get('DB_NAME', 'postgres')
-DB_HOST = os.environ.get('DB_HOST', 'localhost')
-DB_PORT = os.environ.get('DB_PORT', 5432)
+
+DB_PASS = settings.DB_PASS
+DB_USER = settings.DB_USER
+DB_NAME = settings.DB_NAME
+DB_HOST = settings.DB_HOST
+DB_PORT = settings.DB_PORT
 
 engine = create_engine(
     "postgresql+psycopg2://{0}:{1}@{2}:{3}/{4}".format(

@@ -5,8 +5,7 @@ from pydantic import BaseModel, validator
 from sqlalchemy.exc import IntegrityError
 
 from ...settings import settings
-from ...db.user import User
-from ...db import current_session
+from ...db.controllers.user_controller import get_user_by_username, create_new_user
 from ...utils.crypto import validate_password
 
 router = APIRouter(
@@ -30,13 +29,14 @@ class AuthCredentials(BaseModel):
 
 @router.post(path='/login')
 async def login(credentials: OAuth2PasswordRequestForm = Depends()):
-    user = current_session.query(User)\
-        .filter(User.username == credentials.username).first()
+    user = await get_user_by_username(credentials.username)
+    # user = current_session.query(User)\
+    #     .filter(User.username == credentials.username).first()
     if user and validate_password(credentials.password, user.password):
         token = jwt.encode(
             {'user_id': user.id},
-            key=settings.get('JWT_KEY'),
-            algorithm=settings.get('JWT_ALGORITHM')
+            key=settings.JWT_KEY,
+            algorithm=settings.JWT_ALGORITHM
         )
         return {"access_token": token, "token_type": "bearer"}
     raise HTTPException(status_code=401, detail="Unauthorized")
@@ -44,14 +44,10 @@ async def login(credentials: OAuth2PasswordRequestForm = Depends()):
 
 @router.post(path='/register')
 async def register(credentials: AuthCredentials):
-    new_user = User(**credentials.dict())
-    # with Session(engine) as session:
-    current_session.add(new_user)
     try:
-        current_session.commit()
+        new_user = await create_new_user(credentials.dict())
+        if new_user:
+            return {"user_id": new_user.id}
     except IntegrityError:
-        raise HTTPException(status_code=400, detail='username: {} already exists'.format(new_user.username))
-    current_session.refresh(new_user)
-    if new_user.id:
-        return {"user_id": new_user.id}
+        raise HTTPException(status_code=400, detail='username: {} already exists'.format(credentials.username))
     raise HTTPException(status_code=400, detail='SMTH went wrong')

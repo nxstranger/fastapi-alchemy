@@ -1,6 +1,4 @@
 from fastapi.routing import APIRouter, WebSocket
-from .handler import handle
-
 
 ws_route = APIRouter(
     prefix='/private',

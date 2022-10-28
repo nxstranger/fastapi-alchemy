@@ -2,3 +2,6 @@ venv
 
 .idea
 .env
+
+clickhouse
+mongo_data
