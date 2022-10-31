@@ -24,6 +24,7 @@ async def jwt_user(token: str = Depends(oauth2_scheme)):
         user = jwt.decode(token, key=settings.JWT_KEY, algorithms=[settings.JWT_ALGORITHM])
         user_id = user.get('user_id')
         if user:
+            # TODO: move to controllers
             db_user = current_session.query(User)\
                 .options(load_only(User.id, User.is_active, User.role_name))\
                 .filter(User.id == user_id).first()

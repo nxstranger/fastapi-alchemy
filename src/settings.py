@@ -1,7 +1,6 @@
 from functools import lru_cache
 from pydantic import (
     BaseSettings,
-    Field
 )
 from dotenv import load_dotenv
 
@@ -43,8 +42,9 @@ class Settings(BaseSettings):
     ADMIN_ACTIVATION_CODE: str
 
     CLICKHOUSE_DB: str
-    CLICKHOUSE_ADV_TABLE: str
     COLLECT_CLICKHOUSE_DATA: str
+
+    ADV_DEFAULT_TABLE: str
 
     MONGODB_USER: str
     MONGODB_PASSWORD: str
@@ -53,9 +53,6 @@ class Settings(BaseSettings):
 
     class Config:
         env_file = '.env'
-
-
-# settings = Settings().dict()
 
 
 @lru_cache()
