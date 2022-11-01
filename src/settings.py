@@ -35,6 +35,8 @@ class Settings(BaseSettings):
     DB_HOST: str
     DB_PORT: str
 
+    CORS_ORIGINS: str
+
     JWT_KEY: str
     JWT_ALGORITHM: str
     ACCESS_TOKEN_LIFETIME_MINUTES: str
