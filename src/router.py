@@ -26,5 +26,5 @@ try:
     base_router.include_router(chat_router)
     base_router.include_router(advert_router)
 except Exception as exc:
-    print('Error:{}'.format(exc))
+    print('ERROR redirect_to_schema: {}'.format(exc))
 

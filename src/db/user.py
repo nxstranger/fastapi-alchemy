@@ -4,6 +4,7 @@ from sqlalchemy import (
     String,
     Text,
     Boolean,
+    ForeignKey,
 )
 import enum
 from sqlalchemy.orm import deferred
@@ -31,6 +32,7 @@ class User(Base):
     role_name = Column(String(10),
                        nullable=False,
                        server_default=RoleEnum.USER.value)
+    contact_id = Column(Integer, ForeignKey("chat_user.id"))
 
     def __init__(self, username, password, role_name=RoleEnum.USER.value):
         super().__init__()

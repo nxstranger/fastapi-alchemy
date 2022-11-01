@@ -19,5 +19,18 @@ async def create_new_user(credentials):
         current_session.rollback()
         return None
     current_session.refresh(new_user)
-    print('new_user: {}'.format(new_user))
     return new_user
+
+
+async def update_user_data(user_id, values):
+    try:
+        update_result = current_session.query(User)\
+            .filter(User.id == user_id)\
+            .update(values, synchronize_session='fetch')
+        current_session.commit()
+        return update_result
+    except Exception as exc:
+        print('ERROR update_user_data: {}'.format(exc))
+        current_session.rollback()
+    return None
+

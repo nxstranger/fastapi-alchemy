@@ -16,28 +16,6 @@ router = APIRouter(
 )
 
 
-# @router.get(path='/show_databases')
-# async def databases():
-#     try:
-#         rez = await show_databases()
-#         print(rez)
-#         return rez
-#     except Exception as exc:
-#         print("ERROR: {}".format(exc))
-#         HTTPException(status_code=400)
-
-
-# @router.post('/create_new_table')
-# async def create_table(payload: TableNamePayload):
-#     try:
-#         rez = await create_new_table(payload.table_name)
-#         print(rez)
-#         return rez
-#     except Exception as exc:
-#         print("ERROR: {}".format(exc))
-#         HTTPException(status_code=400)
-
-
 @router.post('/advert')
 async def create_adv(payload: NewAdvPayload):
     try:
@@ -45,19 +23,18 @@ async def create_adv(payload: NewAdvPayload):
         return {"response": str(insert_id)}
     except Exception as exc:
         print("ERROR: {}", format(exc))
-    return HTTPException(status_code=400)
+    raise HTTPException(status_code=400)
 
 
 @router.get('/advert')
 async def show_adverts(page: int = 0, limit: int = 10):
     try:
         result = await get_adverts(limit=limit, page=page)
-        print(result)
         return json.loads(json_util.dumps(result))
 
     except Exception as exc:
         print("ERROR: {}".format(exc))
-    return HTTPException(status_code=400)
+    raise HTTPException(status_code=400)
 
 
 @router.get('/advert/{id}')
@@ -67,4 +44,4 @@ async def get_advert(adv_id: str):
         return json.loads(json_util.dumps(result))
     except Exception as exc:
         print("ERROR: {}".format(exc))
-    return HTTPException(status_code=400)
+    raise HTTPException(status_code=400)

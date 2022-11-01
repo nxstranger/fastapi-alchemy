@@ -33,4 +33,4 @@ async def post_message(payload: MessagePayload, user: UserJWT = Depends(get_curr
         return {'messageId': new_id}
     except Exception as exc:
         print('ERROR: {}'.format(exc))
-        HTTPException(status_code=400)
+    raise HTTPException(status_code=400)

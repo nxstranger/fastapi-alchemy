@@ -1,13 +1,12 @@
 from fastapi import Depends
 from fastapi.routing import APIRouter, HTTPException
-from pydantic import BaseModel
 
-from src.settings import settings
-from src.middleware.auth_middleware import get_current_user
-from src.db.user import User, RoleEnum
-from src.db import current_session
-from src.middleware.auth_middleware import UserJWT
-
+from ...settings import settings
+from ...db import current_session
+from ...db.user import User, RoleEnum
+from ...db.controllers import user_controller
+from ...middleware.auth_middleware import UserJWT, get_current_user
+from .types import UpdateUserContactPayload, MakeMeAdminPayload
 
 router = APIRouter(
     prefix='/user',
@@ -24,10 +23,6 @@ async def get_users(user: UserJWT = Depends(get_current_user)):
     else:
         users = current_session.query(User).all()
     return {'users': users}
-
-
-class MakeMeAdminPayload(BaseModel):
-    activation_code: str
 
 
 @router.post('/make_me_admin')
@@ -49,3 +44,17 @@ async def make_me_admin(payload: MakeMeAdminPayload,
         return {user}
     raise HTTPException(status_code=400, detail="Some error")
 
+
+@router.put('/update_contact')
+async def update_user_contact(
+        payload: UpdateUserContactPayload,
+        user: UserJWT = Depends(get_current_user)
+):
+    try:
+        contact = await user_controller.get_user_by_username(payload.contact_name)
+        if contact:
+            update_result = await user_controller.update_user_data(user.id, {'contact_id': contact.id})
+            return update_result
+    except Exception as exc:
+        print('ERROR update_user_contact: {}'.format(exc))
+    raise HTTPException(status_code=400)
