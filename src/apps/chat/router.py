@@ -3,7 +3,7 @@ from fastapi import Depends, HTTPException
 from src.middleware.auth_middleware import UserJWT, is_auth
 from pydantic import BaseModel
 
-from src.middleware.auth_middleware import get_current_user
+from src.middleware.auth_middleware import api_current_user
 from src.db.controllers.message_controller import get_user_messages, create_message
 
 router = APIRouter(
@@ -14,7 +14,7 @@ router = APIRouter(
 
 
 @router.get("/")
-async def get_my_messages(user: UserJWT = Depends(get_current_user)):
+async def get_my_messages(user: UserJWT = Depends(api_current_user)):
     if user:
         messages = get_user_messages(user.id)
         return {'messages': messages}
@@ -27,10 +27,10 @@ class MessagePayload(BaseModel):
 
 
 @router.post('/', dependencies=[Depends(is_auth)])
-async def post_message(payload: MessagePayload, user: UserJWT = Depends(get_current_user)):
+async def post_message(payload: MessagePayload, user: UserJWT = Depends(api_current_user)):
     try:
         new_id = await create_message(**payload.dict(), user_id=user.id)
         return {'messageId': new_id}
     except Exception as exc:
-        print('ERROR: {}'.format(exc))
+        print('ERROR post_message: {}'.format(exc))
     raise HTTPException(status_code=400)

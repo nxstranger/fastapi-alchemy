@@ -25,7 +25,7 @@ async def create_message(user_id, receiver_id, text):
     try:
         current_session.commit()
     except Exception as exc:
-        print('ERROR: {}'.format(exc))
+        print('ERROR create_message: {}'.format(exc))
         current_session.rollback()
         return None
 

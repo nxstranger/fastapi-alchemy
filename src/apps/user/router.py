@@ -5,7 +5,7 @@ from ...settings import settings
 from ...db import current_session
 from ...db.user import User, RoleEnum
 from ...db.controllers import user_controller
-from ...middleware.auth_middleware import UserJWT, get_current_user
+from ...middleware.auth_middleware import UserJWT, api_current_user
 from .types import UpdateUserContactPayload, MakeMeAdminPayload
 
 router = APIRouter(
@@ -16,7 +16,7 @@ router = APIRouter(
 
 
 @router.get("/")
-async def get_users(user: UserJWT = Depends(get_current_user)):
+async def get_users(user: UserJWT = Depends(api_current_user)):
     if user.role_name != 'admin':
         users = current_session.query(User)\
             .where(User.id == user.id).order_by(User.id.asc()).all()
@@ -27,7 +27,7 @@ async def get_users(user: UserJWT = Depends(get_current_user)):
 
 @router.post('/make_me_admin')
 async def make_me_admin(payload: MakeMeAdminPayload,
-                        user: UserJWT = Depends(get_current_user)):
+                        user: UserJWT = Depends(api_current_user)):
 
     if user.role_name == RoleEnum.ADMIN.value:
         raise HTTPException(status_code=400, detail='Already admin')
@@ -48,7 +48,7 @@ async def make_me_admin(payload: MakeMeAdminPayload,
 @router.put('/update_contact')
 async def update_user_contact(
         payload: UpdateUserContactPayload,
-        user: UserJWT = Depends(get_current_user)
+        user: UserJWT = Depends(api_current_user)
 ):
     try:
         contact = await user_controller.get_user_by_username(payload.contact_name)

@@ -22,7 +22,7 @@ async def create_adv(payload: NewAdvPayload):
         insert_id = await insert_advert({**payload.new_adv, 'created_at': datetime.now().timestamp()})
         return {"response": str(insert_id)}
     except Exception as exc:
-        print("ERROR: {}", format(exc))
+        print("ERROR create_adv: {}", format(exc))
     raise HTTPException(status_code=400)
 
 
@@ -33,7 +33,7 @@ async def show_adverts(page: int = 0, limit: int = 10):
         return json.loads(json_util.dumps(result))
 
     except Exception as exc:
-        print("ERROR: {}".format(exc))
+        print("ERROR show_adverts: {}".format(exc))
     raise HTTPException(status_code=400)
 
 
@@ -43,5 +43,5 @@ async def get_advert(adv_id: str):
         result = await get_advert_by_id(adv_id)
         return json.loads(json_util.dumps(result))
     except Exception as exc:
-        print("ERROR: {}".format(exc))
+        print("ERROR get_advert: {}".format(exc))
     raise HTTPException(status_code=400)
