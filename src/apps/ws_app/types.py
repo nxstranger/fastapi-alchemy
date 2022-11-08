@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
 
-class WSContentValidator(BaseModel):
-    pass
+# class WSContentValidator(BaseModel):
+#     pass
 

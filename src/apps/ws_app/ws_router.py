@@ -2,7 +2,9 @@ import json
 from datetime import datetime
 from fastapi import WebSocket, WebSocketDisconnect, BackgroundTasks
 from fastapi.routing import APIRouter
+from starlette.websockets import WebSocketState
 from .manager import manager
+from .handler import handle_data_message, handle_text_message
 
 ws_route = APIRouter(
     prefix='/private',
@@ -11,31 +13,28 @@ ws_route = APIRouter(
 
 
 @ws_route.websocket('/')
-async def handle(websocket: WebSocket, background_tasks: BackgroundTasks):
-    print('websocket: {}'.format(websocket))
-    print('websocket: {}'.format(websocket.scope))
+async def private_chat(websocket: WebSocket, background_tasks: BackgroundTasks):
     await manager.connect(websocket)
 
-    connection_time = datetime.now()
     try:
         while True:
-            print(websocket.user)
-            some_data_receive = await websocket.receive()
+            message = await websocket.receive()
 
-            print('some_data_receive: {}'.format(some_data_receive))
-            print('timestamp: {}'.format(datetime.now().timestamp()))
-            print('timestamp int: {}'.format(
-                    int(datetime.now().timestamp())
-            ))
-            answer = {
-                'type': 'MSG',
-                'stamp': int(datetime.now().timestamp() * 1000),
-                'message': "It's amazing",
-            }
-            await websocket.send_json(data=answer)
-
-            if (datetime.now() - connection_time).total_seconds() > 100:
-                print('close by timeout')
+            if websocket.client_state == WebSocketState.DISCONNECTED:
+                await manager.delete_connection(websocket.user.id)
                 return
+
+            available_modes = {'text', 'binary'}
+            mode = (message.keys() & available_modes).pop()
+            if mode == 'text':
+                await handle_text_message(message['text'], websocket)
+            elif mode == 'binary':
+                handle_data_message(message['binary'], websocket)
+
     except WebSocketDisconnect:
-        manager.disconnect(websocket)
+        print('WebSocketDisconnect Exception')
+        await websocket.close()
+    except Exception as exc:
+        print("ERROR WS handle_message: {}".format(exc))
+        await manager.disconnect(websocket)
+

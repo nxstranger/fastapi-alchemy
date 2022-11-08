@@ -13,7 +13,7 @@ async def get_user_by_username(username):
 async def get_active_user_by_id(user_id):
     try:
         user = current_session.query(User)\
-            .options(load_only(User.id, User.is_active, User.role_name))\
+            .options(load_only(User.id, User.is_active, User.role_name, User.contact_id))\
             .filter((User.id == user_id) & (User.is_active == True))\
             .first()
         if user:
