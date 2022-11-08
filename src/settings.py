@@ -53,6 +53,10 @@ class Settings(BaseSettings):
     MONGODB_HOST: str
     MONGODB_PORT: str
 
+    REDIS_HOST: str
+    REDIS_PORT: int
+    REDIS_DB: str
+
     class Config:
         env_file = '.env'
 
